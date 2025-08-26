@@ -4,9 +4,9 @@
 import Footer from "@/components/Footer";
 import Nav from "@/components/Nav";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 
-const BookingConfirmation = () => {
+function BookingConfirmationInner() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const status = searchParams.get("status"); // 'cancelled' or not present for success
@@ -18,8 +18,6 @@ const BookingConfirmation = () => {
         "Your booking was cancelled. You can try again or choose a different tour."
       );
     } else if (sessionId) {
-      // In a real application, you might fetch more details from your backend
-      // using the sessionId to confirm the booking was updated by the webhook.
       setMessage(
         "Congratulations! Your booking has been confirmed and payment was successful. A confirmation email will be sent shortly."
       );
@@ -32,8 +30,7 @@ const BookingConfirmation = () => {
 
   return (
     <div className="bg-white flex flex-col items-center w-full min-h-screen">
-      <Nav st1={true} st2={true} st3={true} />{" "}
-      {/* Assuming '3' is for confirmation step */}
+      <Nav st1={true} st2={true} st3={true} />
       <div className="flex flex-col items-center justify-center flex-grow p-10 text-center">
         {status === "cancelled" ? (
           <h4 className="text-red-600 mb-4">Cancelled</h4>
@@ -43,7 +40,7 @@ const BookingConfirmation = () => {
         <p className="sm !leading-[1.6] w-full max-w-[450]">{message}</p>
         <button
           className="mt-[60]"
-          onClick={() => (window.location.href = "/")} // Redirects to homepage
+          onClick={() => (window.location.href = "/")}
         >
           Go to Homepage
         </button>
@@ -51,6 +48,12 @@ const BookingConfirmation = () => {
       <Footer />
     </div>
   );
-};
+}
 
-export default BookingConfirmation;
+export default function BookingConfirmation() {
+  return (
+    <Suspense fallback={<div>Loading booking details...</div>}>
+      <BookingConfirmationInner />
+    </Suspense>
+  );
+}
